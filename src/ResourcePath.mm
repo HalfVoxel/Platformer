@@ -27,6 +27,9 @@
 // Headers
 ////////////////////////////////////////////////////////////
 #include "ResourcePath.hpp"
+
+#if __APPLE__
+
 #import <Foundation/Foundation.h>
 
 ////////////////////////////////////////////////////////////
@@ -50,3 +53,11 @@ std::string resourcePath(void)
     
     return rpath;
 }
+
+#else
+
+std::string resourcePath (void) {
+    return "";
+}
+
+#endif
