@@ -2,9 +2,11 @@
 #ifndef __RESOURCE_PATH_CPP__
 #define __RESOURCE_PATH_CPP__
 
-#include "ResourcePath.hpp"
 
-#ifndef __macos__
+
+#ifndef __APPLE__
+
+#include "ResourcePath.hpp"
 
 std::string resourcePath(void) {
 	return "Resources/";

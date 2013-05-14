@@ -38,6 +38,10 @@ public:
 		parent = NULL;
 	}
 	
+	void CreatePhysics (int pixelMargin=2) {
+		
+	}
+	
 	void addChild (PhysicsSprite *child) {
 		if (child->parent != NULL) {
 			child->parent->removeChild(child);

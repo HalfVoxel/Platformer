@@ -10,12 +10,13 @@ class world : public sf::Drawable
 public:
 	static world* activeWorld;
 	
-	float worldScale = 20.0f;
+	float worldScale;
 	sf::RenderTarget* activeRenderTarget;
 	
 	PhysicsSprite root;
 	
 	world();
+
 	~world();
 
 	void CreateWorld();

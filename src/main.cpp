@@ -26,7 +26,7 @@
 #include "PhysicsSprite.h"
 #include <string>
 #include <sstream>
-
+#include <iostream>
 int main(int, char const**)
 {
     // Create the main window
@@ -80,7 +80,22 @@ int main(int, char const**)
 	
 	sf::Time prevTime = clock.getElapsedTime();
 	
+	sf::RenderTexture renderTex;
+	if (!renderTex.create(window.getSize().x, window.getSize().y)) throw 1;
+	
+	sf::RenderTexture renderTex2;
+	if (!renderTex2.create(window.getSize().x, window.getSize().y)) throw 1;
+	
 	int counter = 0;
+	
+	sf::Shader shader;
+	shader.loadFromFile(resourcePath() + "generic.vert", sf::Shader::Vertex);
+	shader.loadFromFile(resourcePath() + "blur.frag", sf::Shader::Fragment);
+	
+	sf::Shader shader2;
+	shader2.loadFromFile(resourcePath() + "generic.vert", sf::Shader::Vertex);
+	shader2.loadFromFile(resourcePath() + "blur2.frag", sf::Shader::Fragment);
+	
     // Start the game loop
     while (window.isOpen())
     {
@@ -101,8 +116,10 @@ int main(int, char const**)
 		
         // Process events
         sf::Event event;
+		
         while (window.pollEvent(event))
         {
+			
             // Close window : exit
             if (event.type == sf::Event::Closed) {
                 window.close();
@@ -112,25 +129,70 @@ int main(int, char const**)
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
                 window.close();
             }
+			
+			if (event.type == sf::Event::Resized) {
+				
+				//Recreate buffers
+				if (!renderTex2.create(event.size.width, event.size.height)) return 1;
+				if (!renderTex.create(event.size.width, event.size.height)) return 1;
+				
+				window.setView(sf::View(sf::FloatRect(0,0,event.size.width, event.size.height)));
+				//window.setSize(sf::Vector2u(event.size.width, event.size.height));
+			}
         }
 		
-		w->activeRenderTarget = &window;
+		//FIRST PASS - Main Render Pass
+		w->activeRenderTarget = &renderTex;
         // Clear screen
-        window.clear();
+        w->activeRenderTarget->clear();
 
         // Draw the sprite
         //window.draw(sprite);
         
 		ps.drawVisual();
 		
-		w->root.setPosition(time.asMilliseconds()*0.001, (time.asMilliseconds()*7)*0.001 );
-		window.draw(*world::activeWorld);
+		w->root.setPosition(window.getSize().x/2, window.getSize().y/2);
+		//w->root.setPosition(time.asMilliseconds()*0.001, (time.asMilliseconds()*7)*0.001 );
+		w->activeRenderTarget->draw(*world::activeWorld);
 		
         // Draw the string
-        window.draw(text);
+        w->activeRenderTarget->draw(text);
 		
         // Update the window
-        window.display();
+        ((sf::RenderTexture*)(w->activeRenderTarget))->display();
+		
+		//SECOND PASS
+		w->activeRenderTarget = &renderTex2;
+		
+		sf::RenderStates state;
+		state.shader = &shader;
+		//shader.setParameter("MainTexture", renderTex.getTexture());
+		shader.setParameter("width", renderTex.getSize().x);
+		shader.setParameter("sigma", 3);
+		shader.setParameter("glowMultiplier", 1.5);
+		shader.setParameter("blurSize", 3);
+		sf::Sprite fullrect (renderTex.getTexture());
+		
+		w->activeRenderTarget->draw(fullrect, state);
+		renderTex2.display();
+		
+		//THIRD PASS
+		w->activeRenderTarget = &window;
+		
+		window.clear(sf::Color(0,0,0,0));
+		
+		state = sf::RenderStates();
+		state.shader = &shader2;
+		shader2.setParameter("MainTexture", renderTex2.getTexture());
+		shader2.setParameter("width", renderTex2.getSize().y);
+		shader2.setParameter("sigma", 3);
+		shader2.setParameter("glowMultiplier", 1.5);
+		shader2.setParameter("blurSize", 3);
+		fullrect = sf::Sprite(renderTex2.getTexture());
+		
+		w->activeRenderTarget->draw(fullrect, state);
+		
+		window.display();
     }
     
     return EXIT_SUCCESS;

@@ -28,6 +28,7 @@ void world::CreateWorld () {
 	texture->setSmooth(true);
 	
 	root.setScale(worldScale, worldScale);
+	root.setRotation(180);
 	
 	PhysicsSprite *s1 = new PhysicsSprite(*texture);
 	s1->body = groundBody;
@@ -38,6 +39,7 @@ void world::CreateWorld () {
 world* world::activeWorld = NULL;
 
 world::world () {
+	worldScale = 20.0f;
 }
 
 world::~world () {
