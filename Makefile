@@ -176,6 +176,30 @@ src/PhysicsSprite.cpp.s:
 	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/PhysicsSprite.cpp.s
 .PHONY : src/PhysicsSprite.cpp.s
 
+src/ResourcePath.o: src/ResourcePath.cpp.o
+.PHONY : src/ResourcePath.o
+
+# target to build an object file
+src/ResourcePath.cpp.o:
+	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.cpp.o
+.PHONY : src/ResourcePath.cpp.o
+
+src/ResourcePath.i: src/ResourcePath.cpp.i
+.PHONY : src/ResourcePath.i
+
+# target to preprocess a source file
+src/ResourcePath.cpp.i:
+	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.cpp.i
+.PHONY : src/ResourcePath.cpp.i
+
+src/ResourcePath.s: src/ResourcePath.cpp.s
+.PHONY : src/ResourcePath.s
+
+# target to generate assembly for a file
+src/ResourcePath.cpp.s:
+	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.cpp.s
+.PHONY : src/ResourcePath.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -240,6 +264,9 @@ help:
 	@echo "... src/PhysicsSprite.o"
 	@echo "... src/PhysicsSprite.i"
 	@echo "... src/PhysicsSprite.s"
+	@echo "... src/ResourcePath.o"
+	@echo "... src/ResourcePath.i"
+	@echo "... src/ResourcePath.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"

@@ -13,7 +13,7 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include "ResourcePath.hpp"
-#include "box2d.h"
+#include "Box2D/Box2D.h"
 #include "PhysicsSprite.h"
 
 class PhysicsSprite : public sf::Drawable, public sf::Transformable {

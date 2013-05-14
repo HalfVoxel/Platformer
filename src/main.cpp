@@ -31,8 +31,8 @@ int main(int, char const**)
 {
     // Create the main window
 	sf::ContextSettings ctx;
-	ctx.antialiasingLevel = 4;
-	ctx.majorVersion = 3;
+	ctx.antialiasingLevel = 8;
+	ctx.majorVersion = 1;
     sf::RenderWindow window(sf::VideoMode(800, 600), "Platformer", sf::Style::Default, ctx);
 	
 	//window.setVerticalSyncEnabled(true);

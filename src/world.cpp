@@ -1,5 +1,5 @@
 
-#include "box2d.h"
+#include "Box2D/Box2D.h"
 #include "world.h"
 #include<iostream>
 #include "PhysicsSprite.h"
