@@ -57,7 +57,6 @@ int main(int, char const**)
         return EXIT_FAILURE;
     }
     sf::Text text("FPS: ", font, 50);
-    text.setColor(sf::Color::Black);
 
     // Load a music to play
     sf::Music music;
@@ -96,6 +95,18 @@ int main(int, char const**)
 	shader2.loadFromFile(resourcePath() + "generic.vert", sf::Shader::Vertex);
 	shader2.loadFromFile(resourcePath() + "blur2.frag", sf::Shader::Fragment);
 	
+
+    sf::Vector2f p1 (0.0,0);
+    sf::Vector2f p2 (1,0);
+
+    float lambda1 = 0.1f;
+    float lambda2 = 0.1f;
+
+    float str1 = 1.0f;
+    float str2 = 1.0f;
+
+    float timeScale = 1;
+
     // Start the game loop
     while (window.isOpen())
     {
@@ -106,13 +117,13 @@ int main(int, char const**)
 		
 		double deltaTime = delta.asMicroseconds()/1000000.0;
 		
-		if (counter % 1000 == 0) {
+		/*if (counter % 1000 == 0) {
 			std::ostringstream strs;
 			strs.precision(0);
 			strs.setf(std::ios::fixed, std::ios::floatfield);
 			strs << "FPS: " << (1.0/deltaTime);
 			text.setString(strs.str());
-		}
+		}*/
 		
         // Process events
         sf::Event event;
@@ -126,8 +137,41 @@ int main(int, char const**)
             }
 
             // Espace pressed : exit
-            if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
-                window.close();
+            if (event.type == sf::Event::KeyPressed) {
+                switch (event.key.code) {
+                    case sf::Keyboard::Escape:
+                        window.close();
+                        break;
+                    case sf::Keyboard::W:
+                        lambda1 += 0.1*deltaTime;
+                        break;
+                    case sf::Keyboard::Q:
+                        lambda1 -= 0.1*deltaTime;
+                        break;
+                    case sf::Keyboard::S:
+                        lambda2 += 0.1*deltaTime;
+                        break;
+                    case sf::Keyboard::A:
+                        lambda2 -= 0.1*deltaTime;
+                        break;
+                    case sf::Keyboard::T:
+                        p1.y += 0.7*deltaTime;
+                        break;
+                    case sf::Keyboard::G:
+                        p1.y -= 0.7*deltaTime;
+                        break;
+                    case sf::Keyboard::H:
+                        p1.x += 0.7*deltaTime;
+                        break;
+                    case sf::Keyboard::F:
+                        p1.x -= 0.7*deltaTime;
+                        break;
+                }
+
+                str1 += 0.7*deltaTime * (event.key.code == sf::Keyboard::X ? 1 : (event.key.code == sf::Keyboard::Z ? -1 : 0));
+                str2 += 0.7*deltaTime * (event.key.code == sf::Keyboard::V ? 1 : (event.key.code == sf::Keyboard::C ? -1 : 0));
+
+                timeScale += 10*deltaTime * (event.key.code == sf::Keyboard::P ? 1 : (event.key.code == sf::Keyboard::O ? -1 : 0));
             }
 			
 			if (event.type == sf::Event::Resized) {
@@ -183,15 +227,31 @@ int main(int, char const**)
 		
 		state = sf::RenderStates();
 		state.shader = &shader2;
-		shader2.setParameter("MainTexture", renderTex2.getTexture());
-		shader2.setParameter("width", renderTex2.getSize().y);
-		shader2.setParameter("sigma", 3);
-		shader2.setParameter("glowMultiplier", 1.5);
-		shader2.setParameter("blurSize", 3);
+		//shader2.setParameter("MainTexture", renderTex2.getTexture());
+		//shader2.setParameter("width", renderTex2.getSize().y);
+		//shader2.setParameter("sigma", 3);
+		//shader2.setParameter("glowMultiplier", 1.5);
+		//shader2.setParameter("blurSize", 3);
+        shader2.setParameter ("p1", p1.x, p1.y);
+        shader2.setParameter ("p2", p2.x, p2.y);
+        shader2.setParameter ("lambda1", lambda1);
+        shader2.setParameter ("lambda2", lambda2);
+        shader2.setParameter ("str1", str1);
+        shader2.setParameter ("str2", str2);
+        shader2.setParameter ("time", timeScale*time.asMicroseconds()/1000000.0);
 		fullrect = sf::Sprite(renderTex2.getTexture());
 		
 		w->activeRenderTarget->draw(fullrect, state);
 		
+        std::ostringstream strs;
+        strs.precision(3);
+        strs.setf(std::ios::fixed, std::ios::floatfield);
+        strs << "P1: (" << p1.x << ", " << p1.y << ")\nP2: (" << p2.x << ", " << p2.y << ")\nF1: " << lambda1 << "\nF2: " << lambda2;
+        strs << "\nMagn1: " << str1 << ", Magn2: " << str2 << "\n"; 
+        text.setString(strs.str()); 
+        text.setColor(sf::Color::Red);
+        w->activeRenderTarget->draw(text);
+
 		window.display();
     }
     

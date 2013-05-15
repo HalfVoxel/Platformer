@@ -30,30 +30,27 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = "/Applications/CMake 2.8-9.app/Contents/bin/cmake"
+CMAKE_COMMAND = /usr/bin/cmake
 
 # The command to remove a file.
-RM = "/Applications/CMake 2.8-9.app/Contents/bin/cmake" -E remove -f
+RM = /usr/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = "/Applications/CMake 2.8-9.app/Contents/bin/ccmake"
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Volumes/HackintoshHD/home/Programming/cpp/Platformer
+CMAKE_SOURCE_DIR = /home/aron/programming/cpp/Platformer
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Volumes/HackintoshHD/home/Programming/cpp/Platformer
+CMAKE_BINARY_DIR = /home/aron/programming/cpp/Platformer
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	"/Applications/CMake 2.8-9.app/Contents/bin/ccmake" -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
+	/usr/bin/cmake -i .
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -63,19 +60,19 @@ edit_cache/fast: edit_cache
 # Special rule for the target install
 install: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	"/Applications/CMake 2.8-9.app/Contents/bin/cmake" -P cmake_install.cmake
+	/usr/bin/cmake -P cmake_install.cmake
 .PHONY : install
 
 # Special rule for the target install
 install/fast: preinstall/fast
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	"/Applications/CMake 2.8-9.app/Contents/bin/cmake" -P cmake_install.cmake
+	/usr/bin/cmake -P cmake_install.cmake
 .PHONY : install/fast
 
 # Special rule for the target install/local
 install/local: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	"/Applications/CMake 2.8-9.app/Contents/bin/cmake" -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
 .PHONY : install/local
 
 # Special rule for the target install/local
@@ -85,7 +82,7 @@ install/local/fast: install/local
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
-	"/Applications/CMake 2.8-9.app/Contents/bin/cmake" -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip
 
 # Special rule for the target install/strip
@@ -104,7 +101,7 @@ list_install_components/fast: list_install_components
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	"/Applications/CMake 2.8-9.app/Contents/bin/cmake" -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/bin/cmake -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -113,9 +110,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Volumes/HackintoshHD/home/Programming/cpp/Platformer/CMakeFiles /Volumes/HackintoshHD/home/Programming/cpp/Platformer/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aron/programming/cpp/Platformer/CMakeFiles /home/aron/programming/cpp/Platformer/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Volumes/HackintoshHD/home/Programming/cpp/Platformer/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/aron/programming/cpp/Platformer/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -179,6 +176,30 @@ src/PhysicsSprite.cpp.s:
 	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/PhysicsSprite.cpp.s
 .PHONY : src/PhysicsSprite.cpp.s
 
+src/ResourceManager.o: src/ResourceManager.cpp.o
+.PHONY : src/ResourceManager.o
+
+# target to build an object file
+src/ResourceManager.cpp.o:
+	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourceManager.cpp.o
+.PHONY : src/ResourceManager.cpp.o
+
+src/ResourceManager.i: src/ResourceManager.cpp.i
+.PHONY : src/ResourceManager.i
+
+# target to preprocess a source file
+src/ResourceManager.cpp.i:
+	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourceManager.cpp.i
+.PHONY : src/ResourceManager.cpp.i
+
+src/ResourceManager.s: src/ResourceManager.cpp.s
+.PHONY : src/ResourceManager.s
+
+# target to generate assembly for a file
+src/ResourceManager.cpp.s:
+	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourceManager.cpp.s
+.PHONY : src/ResourceManager.cpp.s
+
 src/ResourcePath.o: src/ResourcePath.cpp.o
 .PHONY : src/ResourcePath.o
 
@@ -202,30 +223,6 @@ src/ResourcePath.s: src/ResourcePath.cpp.s
 src/ResourcePath.cpp.s:
 	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.cpp.s
 .PHONY : src/ResourcePath.cpp.s
-
-src/ResourcePath.o: src/ResourcePath.mm.o
-.PHONY : src/ResourcePath.o
-
-# target to build an object file
-src/ResourcePath.mm.o:
-	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.mm.o
-.PHONY : src/ResourcePath.mm.o
-
-src/ResourcePath.i: src/ResourcePath.mm.i
-.PHONY : src/ResourcePath.i
-
-# target to preprocess a source file
-src/ResourcePath.mm.i:
-	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.mm.i
-.PHONY : src/ResourcePath.mm.i
-
-src/ResourcePath.s: src/ResourcePath.mm.s
-.PHONY : src/ResourcePath.s
-
-# target to generate assembly for a file
-src/ResourcePath.mm.s:
-	$(MAKE) -f CMakeFiles/Platformer.dir/build.make CMakeFiles/Platformer.dir/src/ResourcePath.mm.s
-.PHONY : src/ResourcePath.mm.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -291,9 +288,9 @@ help:
 	@echo "... src/PhysicsSprite.o"
 	@echo "... src/PhysicsSprite.i"
 	@echo "... src/PhysicsSprite.s"
-	@echo "... src/ResourcePath.o"
-	@echo "... src/ResourcePath.i"
-	@echo "... src/ResourcePath.s"
+	@echo "... src/ResourceManager.o"
+	@echo "... src/ResourceManager.i"
+	@echo "... src/ResourceManager.s"
 	@echo "... src/ResourcePath.o"
 	@echo "... src/ResourcePath.i"
 	@echo "... src/ResourcePath.s"
