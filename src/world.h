@@ -5,6 +5,11 @@
 #include "SFML/Graphics.hpp"
 #include "PhysicsSprite.h"
 
+enum RenderMode {
+	RenderVisual,
+	RenderMeta
+};
+
 class world : public sf::Drawable
 {
 public:
@@ -12,6 +17,8 @@ public:
 	
 	float worldScale;
 	sf::RenderTarget* activeRenderTarget;
+	
+	RenderMode renderMode;
 	
 	PhysicsSprite root;
 	

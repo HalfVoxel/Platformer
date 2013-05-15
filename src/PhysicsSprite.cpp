@@ -29,7 +29,11 @@ void PhysicsSprite::draw(sf::RenderTarget &target, sf::RenderStates states) cons
 	
 	sf::Transform m2 = states.transform;
 	states.transform.scale(1.0f/world::activeWorld->worldScale, 1.0f/world::activeWorld->worldScale);
-	target.draw(sprite, states);
+	if (world::activeWorld->renderMode == RenderVisual) {
+		target.draw(sprite, states);
+	} else {
+		target.draw(metaSprite, states);
+	}
 	
 	states.transform = m2;
 	for (int i=0;i<children.size();i++) {

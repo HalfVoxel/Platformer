@@ -18,7 +18,8 @@
 
 class PhysicsSprite : public sf::Drawable, public sf::Transformable {
 	sf::Sprite sprite;
-
+	sf::Sprite metaSprite;
+	
 protected:
 	PhysicsSprite *parent;
 	std::vector<PhysicsSprite*> children;
@@ -33,7 +34,7 @@ public:
 		parent = NULL;
 	}
 	
-	PhysicsSprite(sf::Texture &tex) : sprite (tex){
+	PhysicsSprite(sf::Texture &tex, sf::Texture &metaTex) : sprite (tex), metaSprite(metaTex){
 		body = NULL;
 		parent = NULL;
 	}

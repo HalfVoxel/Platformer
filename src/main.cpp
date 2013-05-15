@@ -17,7 +17,7 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-
+#include <algorithm>
 // Here is a small helper for you ! Have a look.
 //#include "ResourcePath.hpp"
 
@@ -57,7 +57,9 @@ int main(int, char const**)
         return EXIT_FAILURE;
     }
     sf::Text text("FPS: ", font, 50);
-
+	
+	sf::Text fpstext("FPS: ", font, 18);
+	
     // Load a music to play
     sf::Music music;
     if (!music.openFromFile(resourcePath() + "nice_music.ogg")) {
@@ -73,30 +75,29 @@ int main(int, char const**)
     w->CreateWorld();
 
 	
-	PhysicsSprite ps(texture);// = new PhysicsSprite(texture);
+	//PhysicsSprite ps(texture);// = new PhysicsSprite(texture);
 	
 	sf::Clock clock;
 	
 	sf::Time prevTime = clock.getElapsedTime();
 	
-	sf::RenderTexture renderTex;
-	if (!renderTex.create(window.getSize().x, window.getSize().y)) throw 1;
+	sf::RenderTexture *renderTex= new sf::RenderTexture();
+	if (!renderTex->create(window.getSize().x, window.getSize().y)) throw 1;
 	
-	sf::RenderTexture renderTex2;
-	if (!renderTex2.create(window.getSize().x, window.getSize().y)) throw 1;
+	sf::RenderTexture *renderTex2 = new sf::RenderTexture();
+	if (!renderTex2->create(window.getSize().x, window.getSize().y)) throw 1;
 	
 	int counter = 0;
 	
 	sf::Shader shader;
 	shader.loadFromFile(resourcePath() + "generic.vert", sf::Shader::Vertex);
-	shader.loadFromFile(resourcePath() + "blur.frag", sf::Shader::Fragment);
+	shader.loadFromFile(resourcePath() + "heat.frag", sf::Shader::Fragment);
 	
 	sf::Shader shader2;
 	shader2.loadFromFile(resourcePath() + "generic.vert", sf::Shader::Vertex);
-	shader2.loadFromFile(resourcePath() + "blur2.frag", sf::Shader::Fragment);
+	shader2.loadFromFile(resourcePath() + "heatVisual.frag", sf::Shader::Fragment);
 	
-
-    sf::Vector2f p1 (0.0,0);
+    sf::Vector2f p1 (0.5,0.5);
     sf::Vector2f p2 (1,0);
 
     float lambda1 = 0.1f;
@@ -106,7 +107,10 @@ int main(int, char const**)
     float str2 = 1.0f;
 
     float timeScale = 1;
-
+	
+	renderTex->clear();
+	renderTex2->clear();
+	
     // Start the game loop
     while (window.isOpen())
     {
@@ -117,13 +121,13 @@ int main(int, char const**)
 		
 		double deltaTime = delta.asMicroseconds()/1000000.0;
 		
-		/*if (counter % 1000 == 0) {
+		if (counter % 1000 == 0) {
 			std::ostringstream strs;
 			strs.precision(0);
 			strs.setf(std::ios::fixed, std::ios::floatfield);
 			strs << "FPS: " << (1.0/deltaTime);
-			text.setString(strs.str());
-		}*/
+			fpstext.setString(strs.str());
+		}
 		
         // Process events
         sf::Event event;
@@ -177,14 +181,15 @@ int main(int, char const**)
 			if (event.type == sf::Event::Resized) {
 				
 				//Recreate buffers
-				if (!renderTex2.create(event.size.width, event.size.height)) return 1;
-				if (!renderTex.create(event.size.width, event.size.height)) return 1;
+				if (!renderTex2->create(event.size.width, event.size.height)) return 1;
+				if (!renderTex->create(event.size.width, event.size.height)) return 1;
 				
 				window.setView(sf::View(sf::FloatRect(0,0,event.size.width, event.size.height)));
 				//window.setSize(sf::Vector2u(event.size.width, event.size.height));
 			}
         }
 		
+		/*
 		//FIRST PASS - Main Render Pass
 		w->activeRenderTarget = &renderTex;
         // Clear screen
@@ -205,20 +210,43 @@ int main(int, char const**)
         // Update the window
         ((sf::RenderTexture*)(w->activeRenderTarget))->display();
 		
-		//SECOND PASS
-		w->activeRenderTarget = &renderTex2;
+		 */
 		
 		sf::RenderStates state;
+		
+		std::swap(renderTex,renderTex2);
+		
+		//FIRST PASS - Main Render Pass
+		w->activeRenderTarget = renderTex;
+        // Clear screen
+        //w->activeRenderTarget->clear();
+		w->activeWorld->renderMode = RenderMeta;
+		w->root.setPosition(window.getSize().x*p1.x, window.getSize().y*p1.y);
+		
+		state = sf::RenderStates();
+		state.blendMode = sf::BlendAdd;
+		//state.shader = &shader3;
+		//shader3.setParameter("MainTexture", sf::Shader::CurrentTexture);
+		
+		w->activeRenderTarget->draw(*world::activeWorld, state);
+		
+		// Update the window
+        ((sf::RenderTexture*)(w->activeRenderTarget))->display();
+		
+		//SECOND PASS
+		w->activeRenderTarget = renderTex2;
+		
+		state = sf::RenderStates();
 		state.shader = &shader;
-		//shader.setParameter("MainTexture", renderTex.getTexture());
-		shader.setParameter("width", renderTex.getSize().x);
-		shader.setParameter("sigma", 3);
-		shader.setParameter("glowMultiplier", 1.5);
-		shader.setParameter("blurSize", 3);
-		sf::Sprite fullrect (renderTex.getTexture());
+		shader.setParameter("MainTexture", renderTex->getTexture());
+		shader.setParameter("width", renderTex->getSize().x);
+		shader.setParameter("height", renderTex->getSize().y);
+		shader.setParameter("sigma", 2);
+		shader.setParameter("glow", 1.0);
+		sf::Sprite fullrect (renderTex->getTexture());
 		
 		w->activeRenderTarget->draw(fullrect, state);
-		renderTex2.display();
+		renderTex2->display();
 		
 		//THIRD PASS
 		w->activeRenderTarget = &window;
@@ -227,19 +255,8 @@ int main(int, char const**)
 		
 		state = sf::RenderStates();
 		state.shader = &shader2;
-		//shader2.setParameter("MainTexture", renderTex2.getTexture());
-		//shader2.setParameter("width", renderTex2.getSize().y);
-		//shader2.setParameter("sigma", 3);
-		//shader2.setParameter("glowMultiplier", 1.5);
-		//shader2.setParameter("blurSize", 3);
-        shader2.setParameter ("p1", p1.x, p1.y);
-        shader2.setParameter ("p2", p2.x, p2.y);
-        shader2.setParameter ("lambda1", lambda1);
-        shader2.setParameter ("lambda2", lambda2);
-        shader2.setParameter ("str1", str1);
-        shader2.setParameter ("str2", str2);
-        shader2.setParameter ("time", timeScale*time.asMicroseconds()/1000000.0);
-		fullrect = sf::Sprite(renderTex2.getTexture());
+		shader2.setParameter("MainTexture", renderTex2->getTexture());
+		fullrect = sf::Sprite(renderTex2->getTexture());
 		
 		w->activeRenderTarget->draw(fullrect, state);
 		
@@ -247,11 +264,13 @@ int main(int, char const**)
         strs.precision(3);
         strs.setf(std::ios::fixed, std::ios::floatfield);
         strs << "P1: (" << p1.x << ", " << p1.y << ")\nP2: (" << p2.x << ", " << p2.y << ")\nF1: " << lambda1 << "\nF2: " << lambda2;
-        strs << "\nMagn1: " << str1 << ", Magn2: " << str2 << "\n"; 
+        strs << "\nMagn1: " << str1 << ", Magn2: " << str2 << "\n";
         text.setString(strs.str()); 
         text.setColor(sf::Color::Red);
         w->activeRenderTarget->draw(text);
-
+		fpstext.setPosition(window.getSize().x-100, 5);
+		w->activeRenderTarget->draw(fpstext);
+		
 		window.display();
     }
     

@@ -27,10 +27,16 @@ void world::CreateWorld () {
     }
 	texture->setSmooth(true);
 	
+	sf::Texture* heatTexture = new sf::Texture();
+    if (!heatTexture->loadFromFile(resourcePath() + "heat1.png")) {
+        throw 1;
+    }
+	heatTexture->setSmooth(true);
+	
 	root.setScale(worldScale, worldScale);
 	root.setRotation(180);
 	
-	PhysicsSprite *s1 = new PhysicsSprite(*texture);
+	PhysicsSprite *s1 = new PhysicsSprite(*texture, *heatTexture);
 	s1->body = groundBody;
 	
 	world::activeWorld->root.addChild(s1);

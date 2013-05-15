@@ -49,6 +49,6 @@ void main()
 
     float s = wave1+wave2;
 
-    vec4 color = vec4(s,-s,0,1.0);
+    vec4 color = vec4(s,-s,0.0,1.0);
     gl_FragColor = color;
 }
