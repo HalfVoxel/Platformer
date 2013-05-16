@@ -152,8 +152,8 @@ void main()
     //color *= glow;
 
 
-    color = lerp(color,avg,0.7);
-    color -= 0.01 + 0.03*(snoise(vec3(texCoord.x*10,texCoord.y*10, time*0.5))*0.5+0.5);
+    color = mix(color,avg,0.6);
+    color -= 0.03 + 0.03*(snoise(vec3(texCoord.x*10.0,texCoord.y*10.0, time*0.5))*0.5+0.5);
 
     gl_FragColor = color;
 }

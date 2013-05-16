@@ -27,6 +27,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include "Fluid.h"
+
 int main(int, char const**)
 {
     // Create the main window
@@ -45,10 +47,10 @@ int main(int, char const**)
     window.setIcon(icon.getSize().x, icon.getSize().y, icon.getPixelsPtr());
 
     // Load a sprite to display
-    sf::Texture texture;
-    if (!texture.loadFromFile(resourcePath() + "cute_image.jpg")) {
-        return EXIT_FAILURE;
-    }
+    //sf::Texture texture;
+    //if (!texture.loadFromFile(resourcePath() + "cute_image.jpg")) {
+    //    return EXIT_FAILURE;
+    //}
     //sf::Sprite sprite(texture);
 
     // Create a graphical text to display
@@ -56,7 +58,7 @@ int main(int, char const**)
     if (!font.loadFromFile(resourcePath() + "sansation.ttf")) {
         return EXIT_FAILURE;
     }
-    sf::Text text("FPS: ", font, 50);
+    sf::Text text("FPS: ", font, 30);
 	
 	sf::Text fpstext("FPS: ", font, 18);
 	
@@ -67,7 +69,7 @@ int main(int, char const**)
     }
 	
     // Play the music
-    music.play();
+    //music.play();
 
     world* w = new world();
 	world::activeWorld = w;
@@ -113,9 +115,23 @@ int main(int, char const**)
 	renderTex->clear();
 	renderTex2->clear();
 	
+	Fluid fluid;
+	std::cout << "Initializing Fluid..." << std::endl;
+	
+	int fluidSize = 256;
+	sf::Texture texture;
+	texture.create((unsigned int)fluidSize, (unsigned int)fluidSize);
+	fluid.Init(fluidSize, fluidSize);
+	sf::Uint8* pixels = new sf::Uint8[fluidSize*fluidSize*4];
+	
+	std::cout << "Fluid Running..." << std::endl;
+	
+	int mode = 0;
     // Start the game loop
     while (window.isOpen())
     {
+		
+		
 		counter++;
 		sf::Time time = clock.getElapsedTime();
 		sf::Time delta = time - prevTime;
@@ -134,6 +150,34 @@ int main(int, char const**)
 		}
         lastFPSCounter++;
 		
+		//if (counter < 100)
+			fluid.Update(deltaTime);
+		
+		for (int i=0;i<fluidSize*fluidSize;i++) {
+			sf::Uint8 v;
+			if (mode == 0)
+				v = sf::Uint8((log10(fluid.pressure[i]+10)-1)*800);
+			else if (mode == 1)
+				v = sf::Uint8((log10(fluid.heat[i]+10)-1)*500);
+			else if (mode == 2)
+				v = sf::Uint8((fluid.ink[i]+1 > 4 ? 4 : fluid.ink[i]+1)*64-1);
+				//v = sf::Uint8((log10(fluid.xvelocity[i]+10)-1)*500);
+			else
+				v = 0;
+			
+			if (mode == 2) {
+				pixels[i*4+0] = 255-v;
+				pixels[i*4+1] = 255-v;
+				pixels[i*4+2] = 255-v;
+			} else {
+				pixels[i*4+0] = v;
+				pixels[i*4+1] = 0*sf::Uint8(fluid.xvelocity[i]*128 + 128);
+				pixels[i*4+2] = 0*sf::Uint8(fluid.yvelocity[i]*128 + 128);
+			}
+			pixels[i*4+3] = 255;
+		}
+		texture.update(pixels);
+
         // Process events
         sf::Event event;
 		
@@ -175,6 +219,17 @@ int main(int, char const**)
                     case sf::Keyboard::F:
                         p1.x -= 0.7*deltaTime;
                         break;
+					case sf::Keyboard::M:
+						mode = (mode + 1) % 3;
+						break;
+					case sf::Keyboard::P:
+						fluid.Paint(fluid.heat,sf::Mouse::getPosition().x,sf::Mouse::getPosition().y,30,2);
+						fluid.Paint(fluid.ink,sf::Mouse::getPosition().x+5,sf::Mouse::getPosition().y,2,1);
+						break;
+					case sf::Keyboard::Space:
+						fluid.Paint(fluid.pressure,sf::Mouse::getPosition().x,sf::Mouse::getPosition().y,30,2);
+						
+						break;
                 }
 
                 str1 += 0.7*deltaTime * (event.key.code == sf::Keyboard::X ? 1 : (event.key.code == sf::Keyboard::Z ? -1 : 0));
@@ -217,7 +272,7 @@ int main(int, char const**)
 		
 		 */
 		
-		sf::RenderStates state;
+		/*sf::RenderStates state;
 		
 		std::swap(renderTex,renderTex2);
 		
@@ -240,7 +295,7 @@ int main(int, char const**)
 		
         sf::Sprite fullrect;
 
-        if (counter % 1 == 0) {
+        //if (counter % 1 == 0) {
     		//SECOND PASS
     		w->activeRenderTarget = renderTex2;
     		
@@ -255,29 +310,33 @@ int main(int, char const**)
     		
     		w->activeRenderTarget->draw(fullrect, state);
     		renderTex2->display();
-		} else {
-            std::swap(renderTex, renderTex2);
-        }
+		//} else {
+        //    std::swap(renderTex, renderTex2);
+        //}*/
 
 		//THIRD PASS
 		w->activeRenderTarget = &window;
 		
 		window.clear(sf::Color(0,0,0,0));
 		
-		state = sf::RenderStates();
-		state.shader = &shader2;
-		shader2.setParameter("MainTexture", renderTex2->getTexture());
-		fullrect = sf::Sprite(renderTex2->getTexture());
-		
-		w->activeRenderTarget->draw(fullrect, state);
+		//sf::RenderStates state = sf::RenderStates();
+		//state.shader = &shader2;
+		//shader2.setParameter("MainTexture", texture);
+		sf::Sprite fullrect = sf::Sprite(texture);
+		fullrect.scale(2, 2);
+		w->activeRenderTarget->draw(fullrect);
 		
         std::ostringstream strs;
         strs.precision(3);
         strs.setf(std::ios::fixed, std::ios::floatfield);
-        strs << "P1: (" << p1.x << ", " << p1.y << ")\nP2: (" << p2.x << ", " << p2.y << ")\nF1: " << lambda1 << "\nF2: " << lambda2;
-        strs << "\nMagn1: " << str1 << ", Magn2: " << str2 << "\n";
-        text.setString(strs.str()); 
-        text.setColor(sf::Color::Red);
+        //strs << "P1: (" << p1.x << ", " << p1.y << ")\nP2: (" << p2.x << ", " << p2.y << ")\nF1: " << lambda1 << "\nF2: " << lambda2;
+        //strs << "\nMagn1: " << str1 << ", Magn2: " << str2 << "\n";
+		if (counter % 1 == 0) {
+			strs << fluid.xvelocity[10] << "\n" << fluid.xvelocity[20] << "\n" << fluid.xvelocity[128*256 + 128] << "\n" << fluid.xvelocity[128*256 + 128 + 10] << std::endl;
+			text.setString(strs.str());
+		}
+        
+        text.setColor(sf::Color::White);
         w->activeRenderTarget->draw(text);
 		fpstext.setPosition(window.getSize().x-100, 5);
 		w->activeRenderTarget->draw(fpstext);
