@@ -80,7 +80,9 @@ int main(int, char const**)
 	sf::Clock clock;
 	
 	sf::Time prevTime = clock.getElapsedTime();
-	
+	sf::Time lastFPSTime = prevTime;
+    int lastFPSCounter = 0;
+
 	sf::RenderTexture *renderTex= new sf::RenderTexture();
 	if (!renderTex->create(window.getSize().x, window.getSize().y)) throw 1;
 	
@@ -121,13 +123,16 @@ int main(int, char const**)
 		
 		double deltaTime = delta.asMicroseconds()/1000000.0;
 		
-		if (counter % 1000 == 0) {
+		if ((time - lastFPSTime).asMilliseconds() > 400) {
 			std::ostringstream strs;
 			strs.precision(0);
 			strs.setf(std::ios::fixed, std::ios::floatfield);
-			strs << "FPS: " << (1.0/deltaTime);
+			strs << "FPS: " << (1000000.0/((time - lastFPSTime).asMicroseconds()/float(lastFPSCounter)));
 			fpstext.setString(strs.str());
+            lastFPSTime = time;
+            lastFPSCounter = 0;
 		}
+        lastFPSCounter++;
 		
         // Process events
         sf::Event event;
@@ -233,21 +238,27 @@ int main(int, char const**)
 		// Update the window
         ((sf::RenderTexture*)(w->activeRenderTarget))->display();
 		
-		//SECOND PASS
-		w->activeRenderTarget = renderTex2;
-		
-		state = sf::RenderStates();
-		state.shader = &shader;
-		shader.setParameter("MainTexture", renderTex->getTexture());
-		shader.setParameter("width", renderTex->getSize().x);
-		shader.setParameter("height", renderTex->getSize().y);
-		shader.setParameter("sigma", 2);
-		shader.setParameter("glow", 1.0);
-		sf::Sprite fullrect (renderTex->getTexture());
-		
-		w->activeRenderTarget->draw(fullrect, state);
-		renderTex2->display();
-		
+        sf::Sprite fullrect;
+
+        if (counter % 1 == 0) {
+    		//SECOND PASS
+    		w->activeRenderTarget = renderTex2;
+    		
+    		state = sf::RenderStates();
+    		state.shader = &shader;
+    		shader.setParameter("MainTexture", renderTex->getTexture());
+    		shader.setParameter("width", renderTex->getSize().x);
+    		shader.setParameter("height", renderTex->getSize().y);
+    		//shader.setParameter("sigma", 2);
+    		shader.setParameter("time", time.asMilliseconds()/1000.0);
+    		fullrect = sf::Sprite(renderTex->getTexture());
+    		
+    		w->activeRenderTarget->draw(fullrect, state);
+    		renderTex2->display();
+		} else {
+            std::swap(renderTex, renderTex2);
+        }
+
 		//THIRD PASS
 		w->activeRenderTarget = &window;
 		
